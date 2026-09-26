@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<h1 id="scorecardTitle"></h1>
-<a id="setupLink" class="btn btn-warning mb-3">Setup Handicaps</a>
 <head>
   <meta charset="UTF-8">
   <title>Scorecard</title>
@@ -24,24 +22,33 @@
 </nav>
 
 <div class="container py-5">
-  <h1 class="mb-4" id="scorecardTitle">Scorecard</h1>
 
+  <!-- Title -->
+  <h1 class="mb-3" id="scorecardTitle">Scorecard</h1>
+
+  <!-- Setup button -->
+  <a id="setupLink" class="btn btn-warning mb-4">Setup Handicaps</a>
+
+  <!-- Scorecard table -->
   <div id="scorecards"></div>
 
   <button class="btn btn-success mt-4" onclick="saveScores()">Save Scores</button>
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const day = params.get("day");
-  loadDynamicScorecard(day);
-</script>
-<script>
+  // Get day number from URL
   const params = new URLSearchParams(window.location.search);
   const dayNumber = params.get("day");
 
-  document.getElementById("setupLink").href = `day-setup.html?day=${dayNumber}`;
+  // Link the setup button
+  const setupBtn = document.getElementById("setupLink");
+  setupBtn.href = `day-setup.html?day=${dayNumber}`;
+
+  // Load scorecard
+  loadDynamicScorecard(dayNumber);
 </script>
+
 </body>
 </html>
