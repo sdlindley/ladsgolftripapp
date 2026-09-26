@@ -299,6 +299,58 @@ async function loadDynamicScorecard(dayNumber) {
 }
 
 
+async function loadDaySetup(dayNumber) {
+  const daysRes = await fetch("data/days.json");
+  const days = await daysRes.json();
+
+  const day = days.find(d => d.day == dayNumber);
+  if (!day) return;
+
+  const golfersRes = await fetch("data/golfers.json");
+  const golfers = await golfersRes.json();
+
+  // Load saved handicaps from localStorage if available
+  const saved = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`)) || day.handicaps;
+
+  const container = document.getElementById("setupList");
+
+  golfers.forEach(g => {
+    const hcap = saved.find(s => s.name === g.name)?.handicap || g.handicap;
+
+    const row = document.createElement("div");
+    row.className = "d-flex align-items-center mb-3";
+
+    row.innerHTML = `
+      <div class="me-3" style="width:120px;"><strong>${g.name}</strong></div>
+      <input type="number" class="form-control me-2"
+             style="width:80px;"
+             value="${hcap}"
+             data-player="${g.name}">
+      <button class="btn btn-secondary btn-sm me-1" onclick="adjust('${g.name}', -1)">-</button>
+      <button class="btn btn-secondary btn-sm" onclick="adjust('${g.name}', 1)">+</button>
+    `;
+
+    container.appendChild(row);
+  });
+
+  // Save button
+  document.getElementById("saveBtn").addEventListener("click", () => {
+    const updated = golfers.map(g => {
+      const input = document.querySelector(`input[data-player="${g.name}"]`);
+      return { name: g.name, handicap: parseInt(input.value) };
+    });
+
+    localStorage.setItem(`handicaps-day-${dayNumber}`, JSON.stringify(updated));
+    alert("Handicaps saved for Day " + dayNumber);
+  });
+}
+
+function adjust(name, delta) {
+  const input = document.querySelector(`input[data-player="${name}"]`);
+  input.value = parseInt(input.value) + delta;
+}
+
+
 // ---------------------------
 // Scoring logic
 // ---------------------------
@@ -306,7 +358,10 @@ function calculateScores(course, golfers) {
 
   // Per-hole scoring
   golfers.forEach(golfer => {
-    const handicap = golfer.handicap;
+      const dayHandicaps = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`));
+      const handicap = dayHandicaps?.find(h => h.name === golfer.name)?.handicap || golfer.handicap;
+
+
 
     course.holes.forEach(h => {
       const grossInput = document.querySelector(
