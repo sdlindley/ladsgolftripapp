@@ -1,56 +1,158 @@
-/* Bigger text everywhere */
+/* -----------------------------------
+   GLOBAL MOBILE APP LOOK & FEEL
+----------------------------------- */
+
+body {
+  background: #f7f7f7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding-bottom: 4rem;
+}
+
+/* Card spacing */
+.card {
+  margin-bottom: 1rem;
+  border-radius: 12px;
+}
+
+/* -----------------------------------
+   TABS — BIG, THUMB-FRIENDLY
+----------------------------------- */
+
+#tab-gross, #tab-par, #tab-points {
+  font-size: 1.3rem;
+  padding: 0.9rem 1.2rem;
+  width: 32%;
+  border-radius: 10px;
+}
+
+#tab-gross.btn-primary,
+#tab-par.btn-primary,
+#tab-points.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+#tab-gross.btn-secondary,
+#tab-par.btn-secondary,
+#tab-points.btn-secondary {
+  background-color: #e2e2e2;
+  color: #333;
+}
+
+/* -----------------------------------
+   TABLE — MOBILE-FIRST SCORECARD
+----------------------------------- */
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   font-size: 1.2rem;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-/* Bigger inputs */
-table input.form-control {
-  font-size: 1.3rem;
-  height: 3rem;
-  padding: 0.4rem;
-  text-align: center;
-}
-
-/* Bigger column headers */
 table th {
   font-size: 1.3rem;
   text-align: center;
+  background: #333;
+  color: white;
+  padding: 0.8rem;
 }
 
-/* Bigger cells */
 table td {
   font-size: 1.2rem;
   text-align: center;
   vertical-align: middle;
+  padding: 0.6rem;
 }
 
-/* Reduce padding on mobile */
-@media (max-width: 768px) {
-  table {
-    font-size: 1.4rem;
-  }
-  table input.form-control {
-    font-size: 1.4rem;
-    height: 3.2rem;
-  }
-  table th, table td {
-    padding: 0.6rem;
-  }
-}
-
-/* Make tabs big and thumb-friendly */
-#tab-gross, #tab-par, #tab-points {
-  font-size: 1.3rem;
-  padding: 0.8rem 1.4rem;
-  width: 32%;
-}
-
-/* Add breathing room */
-#scorecards {
-  padding-bottom: 2rem;
-}
-
-/* Optional: chunkier rows */
+/* Chunkier rows for easier tapping */
 table tr {
   height: 3.5rem;
 }
+
+/* -----------------------------------
+   INPUTS — BIG, EASY TO TAP
+----------------------------------- */
+
+table input.form-control {
+  font-size: 1.4rem;
+  height: 3.2rem;
+  padding: 0.4rem;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* -----------------------------------
+   OUT / IN / TOTAL ROWS
+----------------------------------- */
+
+tfoot th {
+  font-size: 1.3rem;
+  padding: 0.8rem;
+}
+
+.table-secondary th {
+  background: #e9ecef;
+}
+
+.table-dark th {
+  background: #222;
+  color: #fff;
+}
+
+/* -----------------------------------
+   MOBILE OPTIMISATION
+----------------------------------- */
+
+@media (max-width: 768px) {
+
+  table {
+    font-size: 1.4rem;
+  }
+
+  table th {
+    font-size: 1.5rem;
+    padding: 1rem;
+  }
+
+  table td {
+    font-size: 1.4rem;
+    padding: 0.8rem;
+  }
+
+  table input.form-control {
+    font-size: 1.5rem;
+    height: 3.4rem;
+  }
+
+  #tab-gross, #tab-par, #tab-points {
+    font-size: 1.4rem;
+    padding: 1rem;
+  }
+}
+
+/* -----------------------------------
+   OPTIONAL: HOLE SEPARATORS
+----------------------------------- */
+
+tbody tr:nth-child(9),
+tbody tr:nth-child(18) {
+  border-bottom: 3px solid #007bff;
+}
+
+/* -----------------------------------
+   OPTIONAL: COLOUR CODING FOR POINTS
+----------------------------------- */
+
+.points {
+  font-weight: bold;
+}
+
+.points[data-points="3"] { color: #28a745; } /* Birdie */
+.points[data-points="2"] { color: #007bff; } /* Par */
+.points[data-points="1"] { color: #ffc107; } /* Bogey */
+.points[data-points="0"] { color: #dc3545; } /* Worse */
