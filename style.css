@@ -1,0 +1,56 @@
+/* Bigger text everywhere */
+table {
+  font-size: 1.2rem;
+}
+
+/* Bigger inputs */
+table input.form-control {
+  font-size: 1.3rem;
+  height: 3rem;
+  padding: 0.4rem;
+  text-align: center;
+}
+
+/* Bigger column headers */
+table th {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+/* Bigger cells */
+table td {
+  font-size: 1.2rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Reduce padding on mobile */
+@media (max-width: 768px) {
+  table {
+    font-size: 1.4rem;
+  }
+  table input.form-control {
+    font-size: 1.4rem;
+    height: 3.2rem;
+  }
+  table th, table td {
+    padding: 0.6rem;
+  }
+}
+
+/* Make tabs big and thumb-friendly */
+#tab-gross, #tab-par, #tab-points {
+  font-size: 1.3rem;
+  padding: 0.8rem 1.4rem;
+  width: 32%;
+}
+
+/* Add breathing room */
+#scorecards {
+  padding-bottom: 2rem;
+}
+
+/* Optional: chunkier rows */
+table tr {
+  height: 3.5rem;
+}
