@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<h1 id="scorecardTitle"></h1>
+<a id="setupLink" class="btn btn-warning mb-3">Setup Handicaps</a>
 <head>
   <meta charset="UTF-8">
   <title>Scorecard</title>
@@ -35,6 +37,11 @@
   const day = params.get("day");
   loadDynamicScorecard(day);
 </script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const dayNumber = params.get("day");
 
+  document.getElementById("setupLink").href = `day-setup.html?day=${dayNumber}`;
+</script>
 </body>
 </html>
