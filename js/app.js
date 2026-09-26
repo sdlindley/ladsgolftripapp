@@ -350,6 +350,79 @@ function adjust(name, delta) {
   input.value = parseInt(input.value) + delta;
 }
 
+// Load golfers from localStorage or JSON
+async function loadGolfersPage() {
+  let golfers = JSON.parse(localStorage.getItem("golfers"));
+
+  if (!golfers) {
+    const res = await fetch("data/golfers.json");
+    golfers = await res.json();
+    localStorage.setItem("golfers", JSON.stringify(golfers));
+  }
+
+  renderGolfers(golfers);
+}
+
+// Render golfers table
+function renderGolfers(golfers) {
+  const tbody = document.querySelector("#golfersTable tbody");
+  tbody.innerHTML = "";
+
+  golfers.forEach((g, index) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${g.name}</td>
+      <td>${g.handicap}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="editGolfer(${index})">Edit</button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+
+// Add golfer
+function addGolfer() {
+  const name = document.getElementById("newName").value.trim();
+  const handicap = parseInt(document.getElementById("newHandicap").value);
+
+  if (!name || isNaN(handicap)) {
+    alert("Please enter a name and handicap.");
+    return;
+  }
+
+  const golfers = JSON.parse(localStorage.getItem("golfers"));
+  golfers.push({ name, handicap });
+
+  localStorage.setItem("golfers", JSON.stringify(golfers));
+  renderGolfers(golfers);
+
+  document.getElementById("newName").value = "";
+  document.getElementById("newHandicap").value = "";
+}
+
+// Edit golfer
+function editGolfer(index) {
+  const golfers = JSON.parse(localStorage.getItem("golfers"));
+  const g = golfers[index];
+
+  const newName = prompt("Edit name:", g.name);
+  const newHandicap = prompt("Edit handicap:", g.handicap);
+
+  if (newName && !isNaN(parseInt(newHandicap))) {
+    golfers[index] = {
+      name: newName.trim(),
+      handicap: parseInt(newHandicap)
+    };
+
+    localStorage.setItem("golfers", JSON.stringify(golfers));
+    renderGolfers(golfers);
+  }
+}
+
 
 // ---------------------------
 // Scoring logic

@@ -16,20 +16,48 @@
       <a class="nav-link text-white" href="golfers.html">Golfers</a>
       <a class="nav-link text-white" href="leaderboard.html">Leaderboard</a>
       <a class="nav-link text-white" href="courses.html">Courses</a>
-      <a class="nav-link text-white" href="days.html">Days Played</a> 
+      <a class="nav-link text-white" href="days.html">Days Played</a>
     </div>
   </div>
 </nav>
 
 <div class="container py-5">
+
   <h1 class="mb-4">Golfers</h1>
 
-  <div id="golfersList" class="row g-4"></div>
+  <!-- Golfers table -->
+  <table class="table table-striped" id="golfersTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Handicap</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <hr class="my-4">
+
+  <!-- Add golfer -->
+  <h3>Add Golfer</h3>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <input id="newName" class="form-control" placeholder="Golfer name">
+    </div>
+    <div class="col-md-2">
+      <input id="newHandicap" type="number" class="form-control" placeholder="Handicap">
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-primary" onclick="addGolfer()">Add</button>
+    </div>
+  </div>
+
 </div>
 
 <script src="js/app.js"></script>
 <script>
-  loadGolfers();
+  loadGolfersPage();
 </script>
 
 </body>
