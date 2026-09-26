@@ -1,0 +1,26 @@
+[
+  {
+    "id": "northcliff",
+    "name": "North Cliff",
+    "location": "Scarborough",
+    "par": 70,
+    "holes": 18,
+    "image": "images/northcliff.png"
+  },
+  {
+    "id": "ganton",
+    "name": "Ganton",
+    "location": "North Yorkshire",
+    "par": 72,
+    "holes": 18,
+    "image": "images/placeholder.jpg"
+  },
+  {
+    "id": "flamborough",
+    "name": "Flamborough Head",
+    "location": "East Yorkshire",
+    "par": 71,
+    "holes": 18,
+    "image": "images/placeholder.jpg"
+  }
+]

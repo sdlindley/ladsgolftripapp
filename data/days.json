@@ -1,0 +1,33 @@
+[
+  {
+    "courseId": "malton",
+    "day": 1,
+    "date": "Tue 22 Sept 2026",
+    "course": "Malton & Norton",
+    "par": 72,
+    "status": "Finished",
+    "winner": "Sam",
+    "points": 42
+  },
+  {
+
+    "courseId": "filey",
+    "day": 2,
+    "date": "Wed 23 Sept 2026",
+    "course": "Filey",
+    "par": 70,
+    "status": "Finished",
+    "winner": "Mark",
+    "points": 33
+  },
+  {
+    "courseId": "northcliff",
+    "day": 3,
+    "date": "Thu 24 Sept 2026",
+    "course": "Scarborough North Cliff",
+    "par": 72,
+    "status": "Finished",
+    "winner": "Jim",
+    "points": 31
+  }
+]
