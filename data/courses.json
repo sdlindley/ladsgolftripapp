@@ -8,17 +8,17 @@
     "image": "images/northcliff.png"
   },
   {
-    "id": "ganton",
-    "name": "Ganton",
+    "id": "malton",
+    "name": "Malton & Norton",
     "location": "North Yorkshire",
     "par": 72,
     "holes": 18,
     "image": "images/placeholder.jpg"
   },
   {
-    "id": "flamborough",
-    "name": "Flamborough Head",
-    "location": "East Yorkshire",
+    "id": "filey",
+    "name": "Filey",
+    "location": "Filey",
     "par": 71,
     "holes": 18,
     "image": "images/placeholder.jpg"
