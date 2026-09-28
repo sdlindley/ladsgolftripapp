@@ -583,9 +583,88 @@ function loadCourse() {
     return;
   }
 
+  // Set course name
   document.getElementById("courseName").innerText = course.name;
 
-  const table = document.getElementById("courseTable");
+  // Set edit button link
+  document.getElementById("editCourseBtn").href = `edit-course.html?id=${courseId}`;
+
+  // Delete button
+  document.getElementById("deleteCourseBtn").addEventListener("click", () => {
+    if (confirm(`Delete course "${course.name}"?`)) {
+      const updated = courses.filter(c => c.id !== courseId);
+      localStorage.setItem("courses", JSON.stringify(updated));
+      alert("Course deleted");
+      window.location.href = "courses.html";
+    }
+  });
+
+
+function loadCourseForEditing() {
+  const params = new URLSearchParams(window.location.search);
+  const courseId = params.get("id");
+
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === courseId);
+
+  if (!course) {
+    alert("Course not found");
+    return;
+  }
+
+  document.getElementById("courseName").value = course.name;
+  document.getElementById("courseLocation").value = course.location;
+
+  const container = document.getElementById("holesContainer");
+  container.innerHTML = "";
+
+  course.holes.forEach(h => {
+    const row = document.createElement("div");
+    row.className = "row mb-2";
+
+    row.innerHTML = `
+      <div class="col-2"><strong>${h.hole}</strong></div>
+      <div class="col-2"><input type="number" class="form-control" id="par-${h.hole}" value="${h.par}"></div>
+      <div class="col-2"><input type="number" class="form-control" id="si-${h.hole}" value="${h.si}"></div>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+  // Edit course
+
+function saveEditedCourse() {
+  const params = new URLSearchParams(window.location.search);
+  const courseId = params.get("id");
+
+  let courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const courseIndex = courses.findIndex(c => c.id === courseId);
+
+  const name = document.getElementById("courseName").value.trim();
+  const location = document.getElementById("courseLocation").value.trim();
+
+  const holes = [];
+  for (let i = 1; i <= 18; i++) {
+    holes.push({
+      hole: i,
+      par: parseInt(document.getElementById(`par-${i}`).value),
+      si: parseInt(document.getElementById(`si-${i}`).value)
+    });
+  }
+
+  courses[courseIndex] = { id: courseId, name, location, holes };
+
+  localStorage.setItem("courses", JSON.stringify(courses));
+
+  alert("Course updated");
+  window.location.href = `course.html?id=${courseId}`;
+}
+
+
+
+  // Build hole table
+  const table = document.getElementById("courseTable").querySelector("tbody");
   table.innerHTML = "";
 
   course.holes.forEach(h => {
@@ -598,6 +677,7 @@ function loadCourse() {
     table.appendChild(row);
   });
 }
+
 
 
 // Save new day

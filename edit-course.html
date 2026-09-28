@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Course Details</title>
+  <title>Edit Course</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -22,29 +22,28 @@
 
 <div class="container py-5">
 
-  <h1 id="courseName" class="mb-4"></h1>
+  <h1 class="mb-4">Edit Course</h1>
 
   <div class="mb-3">
-    <a id="editCourseBtn" class="btn btn-warning me-2">Edit Course</a>
-    <button id="deleteCourseBtn" class="btn btn-danger">Delete Course</button>
+    <label class="form-label">Course Name</label>
+    <input id="courseName" class="form-control">
   </div>
 
-  <table class="table table-bordered" id="courseTable">
-    <thead class="table-dark">
-      <tr>
-        <th>Hole</th>
-        <th>Par</th>
-        <th>SI</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="mb-3">
+    <label class="form-label">Location</label>
+    <input id="courseLocation" class="form-control">
+  </div>
+
+  <h4 class="mt-4">Holes</h4>
+  <div id="holesContainer"></div>
+
+  <button class="btn btn-success mt-4" onclick="saveEditedCourse()">Save Changes</button>
 
 </div>
 
 <script src="js/app.js"></script>
 <script>
-  loadCourse();
+  loadCourseForEditing();
 </script>
 
 </body>
