@@ -599,6 +599,21 @@ function loadCourse() {
     }
   });
 
+  // Build hole table
+  const table = document.getElementById("courseTable").querySelector("tbody");
+  table.innerHTML = "";
+
+  course.holes.forEach(h => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${h.hole}</td>
+      <td>${h.par}</td>
+      <td>${h.si}</td>
+    `;
+    table.appendChild(row);
+  });
+}
+
 
 function loadCourseForEditing() {
   const params = new URLSearchParams(window.location.search);
