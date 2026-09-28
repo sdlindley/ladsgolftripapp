@@ -300,23 +300,27 @@ async function loadDynamicScorecard(dayNumber) {
 
 
 async function loadDaySetup(dayNumber) {
-  const daysRes = await fetch("data/days.json");
-  const days = await daysRes.json();
+  // Load days from localStorage
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+  const day = days.find(d => d.id == dayNumber);
 
-  const day = days.find(d => d.day == dayNumber);
-  if (!day) return;
+  if (!day) {
+    alert("Day not found");
+    return;
+  }
 
-  const golfersRes = await fetch("data/golfers.json");
-  const golfers = await golfersRes.json();
+  // Load saved handicaps (if any)
+  let saved = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`));
 
-  // Load saved handicaps from localStorage if available
-  const saved = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`)) || day.handicaps;
+  // If none saved yet, use the snapshot from the day
+  if (!saved) {
+    saved = day.golfers;   // ⭐ THIS IS THE FIX
+  }
 
   const container = document.getElementById("setupList");
+  container.innerHTML = "";
 
-  golfers.forEach(g => {
-    const hcap = saved.find(s => s.name === g.name)?.handicap || g.handicap;
-
+  saved.forEach((g, index) => {
     const row = document.createElement("div");
     row.className = "d-flex align-items-center mb-3";
 
@@ -324,7 +328,7 @@ async function loadDaySetup(dayNumber) {
       <div class="me-3" style="width:120px;"><strong>${g.name}</strong></div>
       <input type="number" class="form-control me-2"
              style="width:80px;"
-             value="${hcap}"
+             value="${g.handicap}"
              data-player="${g.name}">
       <button class="btn btn-secondary btn-sm me-1" onclick="adjust('${g.name}', -1)">-</button>
       <button class="btn btn-secondary btn-sm" onclick="adjust('${g.name}', 1)">+</button>
@@ -335,7 +339,7 @@ async function loadDaySetup(dayNumber) {
 
   // Save button
   document.getElementById("saveBtn").addEventListener("click", () => {
-    const updated = golfers.map(g => {
+    const updated = saved.map(g => {
       const input = document.querySelector(`input[data-player="${g.name}"]`);
       return { name: g.name, handicap: parseInt(input.value) };
     });
@@ -344,6 +348,7 @@ async function loadDaySetup(dayNumber) {
     alert("Handicaps saved for Day " + dayNumber);
   });
 }
+
 
 function adjust(name, delta) {
   const input = document.querySelector(`input[data-player="${name}"]`);
