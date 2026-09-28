@@ -537,37 +537,46 @@ function editGolfer(index) {
 
 
 // Load Add Day page
-async function loadAddDayPage() {
-  // Load courses
-  const courseRes = await fetch("data/courses.json");
-  const courses = await courseRes.json();
 
+function loadAddDayPage() {
+  // Load courses from localStorage
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
   const courseSelect = document.getElementById("courseSelect");
-  courses.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.name;
-    courseSelect.appendChild(opt);
-  });
+
+  courseSelect.innerHTML = "";
+
+  if (courses.length === 0) {
+    courseSelect.innerHTML = `<option value="">No courses available</option>`;
+  } else {
+    courses.forEach(course => {
+      const opt = document.createElement("option");
+      opt.value = course.id;
+      opt.textContent = course.name;
+      courseSelect.appendChild(opt);
+    });
+  }
 
   // Load golfers
-  let golfers = JSON.parse(localStorage.getItem("golfers"));
-  const list = document.getElementById("golfersList");
+  const golfers = JSON.parse(localStorage.getItem("golfers")) || [];
+  const golfersList = document.getElementById("golfersList");
 
-  golfers.forEach((g, index) => {
+  golfersList.innerHTML = "";
+
+  golfers.forEach(g => {
     const div = document.createElement("div");
     div.className = "form-check";
 
     div.innerHTML = `
-      <input class="form-check-input" type="checkbox" id="golfer-${index}">
-      <label class="form-check-label" for="golfer-${index}">
-        ${g.name} (HC ${g.handicap})
+      <input class="form-check-input" type="checkbox" id="golfer-${g.id}" value="${g.id}">
+      <label class="form-check-label" for="golfer-${g.id}">
+        ${g.name}
       </label>
     `;
 
-    list.appendChild(div);
+    golfersList.appendChild(div);
   });
 }
+
 
 // Load course
 
@@ -721,25 +730,139 @@ function saveNewDay() {
 }
 
 // update days.html to show new days
+
 function loadDaysPage() {
   const days = JSON.parse(localStorage.getItem("days")) || [];
-
   const container = document.getElementById("daysList");
+
   container.innerHTML = "";
+
+  if (days.length === 0) {
+    container.innerHTML = `<p>No days added yet.</p>`;
+    return;
+  }
 
   days.forEach(day => {
     const div = document.createElement("div");
-    div.className = "card p-3 mb-3";
+    div.className = "col-md-4";
 
     div.innerHTML = `
-      <h4>Day ${day.id} – ${day.date}</h4>
-      <p>Course: ${day.courseId}</p>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">${day.date}</h5>
+          <p class="card-text"><strong>Course:</strong> ${day.courseName}</p>
 
-      <a href="day-setup.html?day=${day.id}" class="btn btn-warning me-2">Setup</a>
-      <a href="scorecard.html?day=${day.id}" class="btn btn-primary">Scorecard</a>
+          <a href="day-setup.html?day=${day.id}" class="btn btn-primary btn-sm mb-2">Setup Handicaps</a>
+          <a href="scorecard.html?day=${day.id}" class="btn btn-success btn-sm mb-2">Scorecard</a>
+
+          <a href="edit-day.html?id=${day.id}" class="btn btn-warning btn-sm mb-2">Edit Day</a>
+          <button class="btn btn-danger btn-sm" onclick="deleteDay('${day.id}')">Delete Day</button>
+        </div>
+      </div>
     `;
 
     container.appendChild(div);
+  });
+}
+
+
+// delete day logic
+function deleteDay(dayId) {
+  if (!confirm("Delete this day?")) return;
+
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+  const updated = days.filter(d => d.id !== dayId);
+
+  localStorage.setItem("days", JSON.stringify(updated));
+
+  alert("Day deleted");
+  location.reload();
+}
+
+
+// edit day logic
+
+function loadEditDayPage() {
+  const params = new URLSearchParams(window.location.search);
+  const dayId = params.get("id");
+
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+  const day = days.find(d => d.id === dayId);
+
+  if (!day) {
+    alert("Day not found");
+    return;
+  }
+
+// save edited day logic
+
+function saveEditedDay() {
+  const params = new URLSearchParams(window.location.search);
+  const dayId = params.get("id");
+
+  let days = JSON.parse(localStorage.getItem("days")) || [];
+  const dayIndex = days.findIndex(d => d.id === dayId);
+
+  const date = document.getElementById("dayDate").value;
+  const courseId = document.getElementById("courseSelect").value;
+
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === courseId);
+
+  const selectedGolfers = [];
+  document.querySelectorAll("#golfersList input:checked").forEach(cb => {
+    selectedGolfers.push(cb.value);
+  });
+
+  days[dayIndex] = {
+    id: dayId,
+    date,
+    courseId,
+    courseName: course.name,
+    golfers: selectedGolfers,
+    handicaps: days[dayIndex].handicaps // keep existing snapshot
+  };
+
+  localStorage.setItem("days", JSON.stringify(days));
+
+  alert("Day updated");
+  window.location.href = "days.html";
+}
+
+
+  // Fill date
+  document.getElementById("dayDate").value = day.date;
+
+  // Load courses
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const courseSelect = document.getElementById("courseSelect");
+
+  courses.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    if (c.id === day.courseId) opt.selected = true;
+    courseSelect.appendChild(opt);
+  });
+
+  // Load golfers
+  const golfers = JSON.parse(localStorage.getItem("golfers")) || [];
+  const golfersList = document.getElementById("golfersList");
+
+  golfers.forEach(g => {
+    const div = document.createElement("div");
+    div.className = "form-check";
+
+    const checked = day.golfers.includes(g.id) ? "checked" : "";
+
+    div.innerHTML = `
+      <input class="form-check-input" type="checkbox" id="golfer-${g.id}" value="${g.id}" ${checked}>
+      <label class="form-check-label" for="golfer-${g.id}">
+        ${g.name}
+      </label>
+    `;
+
+    golfersList.appendChild(div);
   });
 }
 
