@@ -569,6 +569,37 @@ async function loadAddDayPage() {
   });
 }
 
+// Load course
+
+function loadCourse() {
+  const params = new URLSearchParams(window.location.search);
+  const courseId = params.get("id");
+
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === courseId);
+
+  if (!course) {
+    document.getElementById("courseName").innerText = "Course not found";
+    return;
+  }
+
+  document.getElementById("courseName").innerText = course.name;
+
+  const table = document.getElementById("courseTable");
+  table.innerHTML = "";
+
+  course.holes.forEach(h => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${h.hole}</td>
+      <td>${h.par}</td>
+      <td>${h.si}</td>
+    `;
+    table.appendChild(row);
+  });
+}
+
+
 // Save new day
 function saveNewDay() {
   const date = document.getElementById("dayDate").value;
