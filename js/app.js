@@ -136,6 +136,88 @@ async function loadCourse(courseId) {
     table.appendChild(row);
   });
 }
+// Build hole inputs
+
+function buildHoleInputs() {
+  const container = document.getElementById("holesContainer");
+
+  for (let i = 1; i <= 18; i++) {
+    const row = document.createElement("div");
+    row.className = "row mb-2";
+
+    row.innerHTML = `
+      <div class="col-2"><strong>${i}</strong></div>
+      <div class="col-2"><input type="number" class="form-control" id="par-${i}" placeholder="Par"></div>
+      <div class="col-2"><input type="number" class="form-control" id="si-${i}" placeholder="SI"></div>
+    `;
+
+    container.appendChild(row);
+  }
+}
+
+
+// Save course to local storage
+
+function saveCourse() {
+  const name = document.getElementById("courseName").value.trim();
+  const location = document.getElementById("courseLocation").value.trim();
+
+  if (!name) {
+    alert("Course name required");
+    return;
+  }
+
+  const holes = [];
+
+  for (let i = 1; i <= 18; i++) {
+    const par = parseInt(document.getElementById(`par-${i}`).value);
+    const si = parseInt(document.getElementById(`si-${i}`).value);
+
+    if (!par || !si) {
+      alert(`Par and SI required for hole ${i}`);
+      return;
+    }
+
+    holes.push({ hole: i, par, si });
+  }
+
+  let courses = JSON.parse(localStorage.getItem("courses")) || [];
+
+  const newCourse = {
+    id: name.toLowerCase().replace(/\s+/g, "-"),
+    name,
+    location,
+    holes
+  };
+
+  courses.push(newCourse);
+  localStorage.setItem("courses", JSON.stringify(courses));
+
+  window.location.href = "courses.html";
+}
+
+// Load courses on courses page
+
+function loadCoursesPage() {
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const container = document.getElementById("coursesList");
+
+  container.innerHTML = "";
+
+  courses.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "card p-3 mb-3";
+
+    div.innerHTML = `
+      <h4>${c.name}</h4>
+      <p>${c.location || ""}</p>
+      <a href="course.html?id=${c.id}" class="btn btn-secondary">View</a>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
 
 
 // ---------------------------
@@ -147,30 +229,58 @@ let currentCourse = null;
 let currentGolfers = null;
 
 async function loadDynamicScorecard(dayNumber) {
-  const daysRes = await fetch("data/days.json");
-  const days = await daysRes.json();
 
-  const day = days.find(d => d.day == dayNumber);
+  // ---------------------------
+  // Load day from localStorage
+  // ---------------------------
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+  const day = days.find(d => d.id == dayNumber);
+
   if (!day) {
     document.getElementById("scorecardTitle").innerText = "Day not found";
     return;
   }
 
-  document.getElementById("scorecardTitle").innerText = `Scorecard – Day ${day.day}`;
+  document.getElementById("scorecardTitle").innerText =
+    `Scorecard – Day ${day.id}`;
 
-  const courseRes = await fetch(`data/courses/${day.courseId}.json`);
-  const course = await courseRes.json();
 
-  const golfersRes = await fetch("data/golfers.json");
-  const golfers = await golfersRes.json();
-  
+  // ---------------------------
+  // Load course from localStorage
+  // ---------------------------
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === day.courseId);
+
+  if (!course) {
+    alert("Course not found in localStorage");
+    return;
+  }
+
+
+  // ---------------------------
+  // Load golfers for THIS day
+  // (snapshot created when the day was added)
+  // ---------------------------
+  let golfers = day.golfers;
+
+  // Load saved handicaps (if any)
+  const savedHandicaps =
+    JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`));
+
+  if (savedHandicaps) {
+    golfers = savedHandicaps; // override snapshot
+  }
+
   currentCourse = course;
   currentGolfers = golfers;
 
-  const container = document.getElementById("scorecards");
-  
 
-  // Add tabs
+  // ---------------------------
+  // Build scorecard UI
+  // ---------------------------
+  const container = document.getElementById("scorecards");
+
+  // Tabs
   let tabs = `
     <div class="mb-3">
       <button class="btn btn-primary me-2" id="tab-gross">Gross</button>
@@ -179,7 +289,7 @@ async function loadDynamicScorecard(dayNumber) {
     </div>
   `;
 
-  // Build table header
+  // Table header
   let table = `
     <table class="table table-bordered">
       <thead class="table-dark">
@@ -199,7 +309,7 @@ async function loadDynamicScorecard(dayNumber) {
       <tbody>
   `;
 
-  // Build rows
+  // Table rows (holes)
   course.holes.forEach(h => {
     table += `
       <tr>
@@ -230,58 +340,54 @@ async function loadDynamicScorecard(dayNumber) {
     table += `</tr>`;
   });
 
-// OUT / IN / TOTAL rows
+  // OUT / IN / TOTAL rows
   table += `
       </tbody>
       <tfoot>
         <tr class="table-secondary">
-          <th>OUT</th>
-          <th></th>
-          <th></th>
-    `;
+          <th>OUT</th><th></th><th></th>
+  `;
 
-    golfers.forEach(g => {
-      table += `<th id="out-${g.name}">0</th>`;
-    });
+  golfers.forEach(g => {
+    table += `<th id="out-${g.name}">0</th>`;
+  });
 
-      table += `
+  table += `
         </tr>
         <tr class="table-secondary">
-          <th>IN</th>
-          <th></th>
-          <th></th>
-     `;
+          <th>IN</th><th></th><th></th>
+  `;
 
-    golfers.forEach(g => {
-      table += `<th id="in-${g.name}">0</th>`;
-    });
+  golfers.forEach(g => {
+    table += `<th id="in-${g.name}">0</th>`;
+  });
 
-    table += `
+  table += `
         </tr>
         <tr class="table-dark">
-          <th>TOTAL</th>
-          <th></th>
-          <th></th>
-    `;
+          <th>TOTAL</th><th></th><th></th>
+  `;
 
-    golfers.forEach(g => {
-      table += `<th id="total-${g.name}">0</th>`;
-    });
+  golfers.forEach(g => {
+    table += `<th id="total-${g.name}">0</th>`;
+  });
 
-    table += `
+  table += `
         </tr>
       </tfoot>
     </table>
   `;
 
-
   container.innerHTML = tabs + table;
 
+
+  // ---------------------------
   // Add listeners
+  // ---------------------------
   document.querySelectorAll(".gross").forEach(input => {
     input.addEventListener("input", () => calculateScores(course, golfers));
   });
-  // TAB SWITCHING
+
   document.getElementById("tab-gross").addEventListener("click", () => {
     showGross();
     setActiveTab("gross");
@@ -297,6 +403,7 @@ async function loadDynamicScorecard(dayNumber) {
     setActiveTab("points");
   });
 }
+
 
 
 async function loadDaySetup(dayNumber) {
