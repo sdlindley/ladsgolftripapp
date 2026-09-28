@@ -1,141 +1,4 @@
-// ---------------------------
-// Load golfers
-// ---------------------------
-async function loadGolfers() {
-  const res = await fetch("data/golfers.json");
-  const golfers = await res.json();
 
-  const container = document.getElementById("golfersList");
-
-  golfers.forEach(g => {
-    const card = document.createElement("div");
-    card.className = "col-md-4";
-
-    card.innerHTML = `
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">${g.name}</h5>
-          <p class="card-text">Handicap: ${g.handicap}</p>
-        </div>
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-}
-
-
-// ---------------------------
-// Load leaderboard
-// ---------------------------
-async function loadLeaderboard() {
-  const res = await fetch("data/scores.json");
-  const scores = await res.json();
-
-  const table = document.getElementById("leaderboardTable");
-
-  scores
-    .sort((a, b) => b.points - a.points)
-    .forEach(s => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${s.name}</td>
-        <td>${s.points}</td>
-      `;
-      table.appendChild(row);
-    });
-}
-
-
-// ---------------------------
-// Load courses list
-// ---------------------------
-async function loadCourses() {
-  const res = await fetch("data/courses.json");
-  const courses = await res.json();
-
-  const container = document.getElementById("coursesList");
-
-  courses.forEach(c => {
-    const card = document.createElement("div");
-    card.className = "col-md-4";
-
-    card.innerHTML = `
-      <a href="courses/${c.id}.html" class="text-decoration-none text-dark">
-        <div class="card shadow-sm">
-          ${c.image ? `<img src="${c.image}" class="card-img-top" alt="${c.name}">` : ""}
-          <div class="card-body">
-            <h5 class="card-title">${c.name}</h5>
-            <p class="card-text">
-              Location: ${c.location}<br>
-              Par: ${c.par}<br>
-              Holes: ${c.holes}
-            </p>
-            <button class="btn btn-primary">View Course</button>
-          </div>
-        </div>
-      </a>
-    `;
-    container.appendChild(card);
-  });
-}
-
-
-// ---------------------------
-// Load days list
-// ---------------------------
-async function loadDays() {
-  const res = await fetch("data/days.json");
-  const days = await res.json();
-
-  const container = document.getElementById("daysList");
-
-  days.forEach(d => {
-    const card = document.createElement("div");
-    card.className = "col-md-4";
-
-    card.innerHTML = `
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Day ${d.day}</h5>
-          <p class="card-text">
-            <strong>Date:</strong> ${d.date}<br>
-            <strong>Course:</strong> ${d.course}<br>
-            <strong>Par:</strong> ${d.par}<br>
-            <strong>Status:</strong> ${d.status}<br>
-            <strong>Winner:</strong> ${d.winner} (${d.points} pts)
-          </p>
-          <a href="scorecard.html?day=${d.day}" class="btn btn-primary">Scorecard</a>
-        </div>
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-}
-
-
-// ---------------------------
-// Load single course page
-// ---------------------------
-async function loadCourse(courseId) {
-  const res = await fetch(`../data/courses/${courseId}.json`);
-  const course = await res.json();
-
-  document.getElementById("courseName").innerText = course.name;
-
-  const table = document.getElementById("courseTable");
-
-  course.holes.forEach(h => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${h.hole}</td>
-      <td>${h.par}</td>
-      <td>${h.si}</td>
-    `;
-    table.appendChild(row);
-  });
-}
 // Build hole inputs
 
 function buildHoleInputs() {
@@ -719,38 +582,6 @@ function saveNewDay() {
 }
 
 
-  // Load golfers
-  const golfers = JSON.parse(localStorage.getItem("golfers"));
-  const selectedGolfers = [];
-
-  golfers.forEach((g, index) => {
-    const checkbox = document.getElementById(`golfer-${index}`);
-    if (checkbox.checked) {
-      selectedGolfers.push({ name: g.name, handicap: g.handicap });
-    }
-  });
-
-  if (selectedGolfers.length === 0) {
-    alert("Please select at least one golfer.");
-    return;
-  }
-
-  // Load existing days
-  let days = JSON.parse(localStorage.getItem("days")) || [];
-
-  const newDay = {
-    id: days.length + 1,
-    date,
-    courseId,
-    golfers: selectedGolfers
-  };
-
-  days.push(newDay);
-  localStorage.setItem("days", JSON.stringify(days));
-
-  window.location.href = "days.html";
-}
-
 // update days.html to show new days
 
 function loadDaysPage() {
@@ -803,7 +634,6 @@ function deleteDay(dayId) {
 
 
 // edit day logic
-
 function loadEditDayPage() {
   const params = new URLSearchParams(window.location.search);
   const dayId = params.get("id");
@@ -815,42 +645,6 @@ function loadEditDayPage() {
     alert("Day not found");
     return;
   }
-
-// save edited day logic
-
-function saveEditedDay() {
-  const params = new URLSearchParams(window.location.search);
-  const dayId = params.get("id");
-
-  let days = JSON.parse(localStorage.getItem("days")) || [];
-  const dayIndex = days.findIndex(d => d.id === dayId);
-
-  const date = document.getElementById("dayDate").value;
-  const courseId = document.getElementById("courseSelect").value;
-
-  const courses = JSON.parse(localStorage.getItem("courses")) || [];
-  const course = courses.find(c => c.id === courseId);
-
-  const selectedGolfers = [];
-  document.querySelectorAll("#golfersList input:checked").forEach(cb => {
-    selectedGolfers.push(cb.value);
-  });
-
-  days[dayIndex] = {
-    id: dayId,
-    date,
-    courseId,
-    courseName: course.name,
-    golfers: selectedGolfers,
-    handicaps: days[dayIndex].handicaps // keep existing snapshot
-  };
-
-  localStorage.setItem("days", JSON.stringify(days));
-
-  alert("Day updated");
-  window.location.href = "days.html";
-}
-
 
   // Fill date
   document.getElementById("dayDate").value = day.date;
@@ -888,6 +682,40 @@ function saveEditedDay() {
   });
 }
 
+// save edited day logic
+function saveEditedDay() {
+  const params = new URLSearchParams(window.location.search);
+  const dayId = params.get("id");
+
+  let days = JSON.parse(localStorage.getItem("days")) || [];
+  const dayIndex = days.findIndex(d => d.id === dayId);
+
+  const date = document.getElementById("dayDate").value;
+  const courseId = document.getElementById("courseSelect").value;
+
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === courseId);
+
+  const selectedGolfers = [];
+  document.querySelectorAll("#golfersList input:checked").forEach(cb => {
+    selectedGolfers.push(cb.value);
+  });
+
+  days[dayIndex] = {
+    id: dayId,
+    date,
+    courseId,
+    courseName: course.name,
+    golfers: selectedGolfers,
+    handicaps: days[dayIndex].handicaps // keep existing snapshot
+  };
+
+  localStorage.setItem("days", JSON.stringify(days));
+
+  alert("Day updated");
+  window.location.href = "days.html";
+}
+
 
 // ---------------------------
 // Scoring logic
@@ -898,7 +726,6 @@ function calculateScores(course, golfers) {
   golfers.forEach(golfer => {
       const dayHandicaps = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`));
       const handicap = dayHandicaps?.find(h => h.name === golfer.name)?.handicap || golfer.handicap;
-
 
 
     course.holes.forEach(h => {
