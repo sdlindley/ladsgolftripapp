@@ -692,10 +692,32 @@ function saveNewDay() {
   const date = document.getElementById("dayDate").value;
   const courseId = document.getElementById("courseSelect").value;
 
-  if (!date || !courseId) {
-    alert("Please select a date and course.");
-    return;
-  }
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === courseId);
+
+  const selectedGolfers = [];
+  document.querySelectorAll("#golfersList input:checked").forEach(cb => {
+    selectedGolfers.push(cb.value);
+  });
+
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+
+  const newDay = {
+    id: "day-" + Date.now(),
+    date,
+    courseId,
+    courseName: course.name,
+    golfers: selectedGolfers,
+    handicaps: {} // filled later in day-setup
+  };
+
+  days.push(newDay);
+  localStorage.setItem("days", JSON.stringify(days));
+
+  alert("Day added");
+  window.location.href = "days.html";
+}
+
 
   // Load golfers
   const golfers = JSON.parse(localStorage.getItem("golfers"));
