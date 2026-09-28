@@ -424,6 +424,105 @@ function editGolfer(index) {
 }
 
 
+// Load Add Day page
+async function loadAddDayPage() {
+  // Load courses
+  const courseRes = await fetch("data/courses.json");
+  const courses = await courseRes.json();
+
+  const courseSelect = document.getElementById("courseSelect");
+  courses.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    courseSelect.appendChild(opt);
+  });
+
+  // Load golfers
+  let golfers = JSON.parse(localStorage.getItem("golfers"));
+  const list = document.getElementById("golfersList");
+
+  golfers.forEach((g, index) => {
+    const div = document.createElement("div");
+    div.className = "form-check";
+
+    div.innerHTML = `
+      <input class="form-check-input" type="checkbox" id="golfer-${index}">
+      <label class="form-check-label" for="golfer-${index}">
+        ${g.name} (HC ${g.handicap})
+      </label>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+// Save new day
+function saveNewDay() {
+  const date = document.getElementById("dayDate").value;
+  const courseId = document.getElementById("courseSelect").value;
+
+  if (!date || !courseId) {
+    alert("Please select a date and course.");
+    return;
+  }
+
+  // Load golfers
+  const golfers = JSON.parse(localStorage.getItem("golfers"));
+  const selectedGolfers = [];
+
+  golfers.forEach((g, index) => {
+    const checkbox = document.getElementById(`golfer-${index}`);
+    if (checkbox.checked) {
+      selectedGolfers.push({ name: g.name, handicap: g.handicap });
+    }
+  });
+
+  if (selectedGolfers.length === 0) {
+    alert("Please select at least one golfer.");
+    return;
+  }
+
+  // Load existing days
+  let days = JSON.parse(localStorage.getItem("days")) || [];
+
+  const newDay = {
+    id: days.length + 1,
+    date,
+    courseId,
+    golfers: selectedGolfers
+  };
+
+  days.push(newDay);
+  localStorage.setItem("days", JSON.stringify(days));
+
+  window.location.href = "days.html";
+}
+
+// update days.html to show new days
+function loadDaysPage() {
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+
+  const container = document.getElementById("daysList");
+  container.innerHTML = "";
+
+  days.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "card p-3 mb-3";
+
+    div.innerHTML = `
+      <h4>Day ${day.id} – ${day.date}</h4>
+      <p>Course: ${day.courseId}</p>
+
+      <a href="day-setup.html?day=${day.id}" class="btn btn-warning me-2">Setup</a>
+      <a href="scorecard.html?day=${day.id}" class="btn btn-primary">Scorecard</a>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+
 // ---------------------------
 // Scoring logic
 // ---------------------------
