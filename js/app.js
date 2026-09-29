@@ -360,6 +360,7 @@ function renderGolfers(golfers) {
 
 
 // Add golfer
+
 function addGolfer() {
   const name = document.getElementById("newName").value.trim();
   const handicap = parseInt(document.getElementById("newHandicap").value);
@@ -369,8 +370,13 @@ function addGolfer() {
     return;
   }
 
-  const golfers = JSON.parse(localStorage.getItem("golfers"));
-  golfers.push({ name, handicap });
+  const golfers = JSON.parse(localStorage.getItem("golfers")) || [];
+
+  golfers.push({
+    id: name.toLowerCase().replace(/\s+/g, "-"),
+    name,
+    handicap
+  });
 
   localStorage.setItem("golfers", JSON.stringify(golfers));
   renderGolfers(golfers);
@@ -378,6 +384,7 @@ function addGolfer() {
   document.getElementById("newName").value = "";
   document.getElementById("newHandicap").value = "";
 }
+
 
 // Edit golfer
 function editGolfer(index) {
