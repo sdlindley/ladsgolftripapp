@@ -1069,7 +1069,7 @@ leaderboardData.push({
   net: netTotal,
   points: pointsTotal
 });
-
+});   // CLOSE day.golfers.forEach
 
   // Default sort by points
   leaderboardData.sort((a, b) => b.points - a.points);
