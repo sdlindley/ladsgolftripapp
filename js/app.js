@@ -642,8 +642,9 @@ function loadDaysPage() {
           <a href="day-setup.html?day=${day.id}" class="btn btn-primary btn-sm mb-2">Setup Handicaps</a>
           <a href="scorecard.html?day=${day.id}" class="btn btn-success btn-sm mb-2">Scorecard</a>
 
-          <a href="edit-day.html?id=${day.id}" class="btn btn-warning btn-sm mb-2">Edit Day</a>
-          <button class="btn btn-danger btn-sm" onclick="deleteDay('${day.id}')">Delete Day</button>
+          <a href="edit-day.html?id=${day.id}" class="btn btn-warning btn-sm mb-2">Edit</a>
+          <button class="btn btn-danger btn-sm mb-2" onclick="deleteDay('${day.id}')">Delete</button>
+
         </div>
       </div>
     `;
