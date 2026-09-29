@@ -933,9 +933,6 @@ function stablefordPoints(net, par) {
   return 0;
 }
 
-function saveScores() {
-  alert("Scores saved (local only for now)");
-}
 function showGross() {
   document.querySelectorAll(".gross").forEach(el => el.classList.remove("d-none"));
   document.querySelectorAll(".net").forEach(el => el.classList.add("d-none"));
