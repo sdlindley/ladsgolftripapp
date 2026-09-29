@@ -677,6 +677,8 @@ function loadDaysPage() {
 
           <a href="day-setup.html?day=${day.id}" class="btn btn-primary btn-sm mb-2">Setup Handicaps</a>
           <a href="scorecard.html?day=${day.id}" class="btn btn-success btn-sm mb-2">Scorecard</a>
+          <a href="day-leaderboard.html?day=${day.id}" class="btn btn-info btn-sm mb-2">Leaderboard</a>
+
 
           <a href="edit-day.html?id=${day.id}" class="btn btn-warning btn-sm mb-2">Edit</a>
           <button class="btn btn-danger btn-sm mb-2" onclick="deleteDay('${day.id}')">Delete</button>
@@ -1007,5 +1009,118 @@ function saveScores(dayId) {
   localStorage.setItem(`scores-day-${dayId}`, JSON.stringify(scores));
 
   alert("Scores saved");
+}
+
+
+// load leaderboard day
+
+function loadDayLeaderboard(dayId) {
+
+  const days = JSON.parse(localStorage.getItem("days")) || [];
+  const day = days.find(d => d.id === dayId);
+
+  if (!day) {
+    document.getElementById("leaderboardTitle").innerText = "Day not found";
+    return;
+  }
+
+  document.getElementById("leaderboardTitle").innerHTML = `
+    Leaderboard<br>
+    <small>${day.date} – ${day.courseName}</small>
+  `;
+
+  const allGolfers = JSON.parse(localStorage.getItem("golfers")) || [];
+  const handicaps = JSON.parse(localStorage.getItem(`handicaps-day-${dayId}`)) || [];
+  const scores = JSON.parse(localStorage.getItem(`scores-day-${dayId}`)) || {};
+
+  const courses = JSON.parse(localStorage.getItem("courses")) || [];
+  const course = courses.find(c => c.id === day.courseId);
+
+  const leaderboardData = [];
+
+  day.golfers.forEach(id => {
+    const g = allGolfers.find(x => x.id === id);
+    const h = handicaps.find(x => x.id === id);
+
+    let grossTotal = 0;
+    let netTotal = 0;
+    let pointsTotal = 0;
+
+    course.holes.forEach(hole => {
+      const s = scores[g.name]?.[hole.hole];
+      if (!s) return;
+
+      if (!isNaN(s.gross)) grossTotal += s.gross;
+      if (!isNaN(s.net)) netTotal += s.net;
+      if (!isNaN(s.points)) pointsTotal += s.points;
+    });
+
+    leaderboardData.push({
+      name: g.name,
+      gross: grossTotal,
+      net: netTotal,
+      points: pointsTotal
+    });
+  });
+
+  // Default sort by points
+  leaderboardData.sort((a, b) => b.points - a.points);
+
+  renderLeaderboardTable(leaderboardData);
+}
+
+
+  // Render Leaderboard Table click to sort headers
+function renderLeaderboardTable(data) {
+
+  const container = document.getElementById("leaderboard");
+
+  let table = `
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th data-sort="name">Golfer</th>
+          <th data-sort="gross">Gross</th>
+          <th data-sort="net">Net</th>
+          <th data-sort="points">Points</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  data.forEach(row => {
+    table += `
+      <tr>
+        <td>${row.name}</td>
+        <td>${row.gross}</td>
+        <td>${row.net}</td>
+        <td>${row.points}</td>
+      </tr>
+    `;
+  });
+
+  table += `
+      </tbody>
+    </table>
+  `;
+
+  container.innerHTML = table;
+
+  // Add sorting
+  container.querySelectorAll("th[data-sort]").forEach(th => {
+    th.style.cursor = "pointer";
+    th.addEventListener("click", () => {
+      const key = th.getAttribute("data-sort");
+
+      // Sort descending except name
+      if (key === "name") {
+        data.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        data.sort((a, b) => b[key] - a[key]);
+      }
+
+      renderLeaderboardTable(data);
+    });
+  });
 }
 

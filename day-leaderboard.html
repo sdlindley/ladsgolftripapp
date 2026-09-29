@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day Leaderboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Golf Trip</a>
+  </div>
+</nav>
+
+<div class="container py-5">
+  <h1 id="leaderboardTitle" class="mb-4">Leaderboard</h1>
+
+  <div id="leaderboard"></div>
+
+  <a id="backLink" class="btn btn-secondary mt-4">Back to Scorecard</a>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const dayId = params.get("day");
+
+  document.getElementById("backLink").href = `scorecard.html?day=${dayId}`;
+
+  loadDayLeaderboard(dayId);
+</script>
+
+</body>
+</html>
