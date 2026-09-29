@@ -173,9 +173,14 @@ async function loadDynamicScorecard(dayNumber) {
           <th>SI</th>
   `;
 
-  golfers.forEach(g => {
-    table += `<th>${g.name}</th>`;
-  });
+const handicaps = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`)) || [];
+
+golfers.forEach(g => {
+  const snap = handicaps.find(h => h.id === g.id);
+  const hcap = snap ? snap.handicap : g.handicap;
+  table += `<th>${g.name} (${hcap})</th>`;
+});
+
 
   table += `
         </tr>
@@ -1055,13 +1060,16 @@ function loadDayLeaderboard(dayId) {
       if (!isNaN(s.points)) pointsTotal += s.points;
     });
 
-    leaderboardData.push({
-      name: g.name,
-      gross: grossTotal,
-      net: netTotal,
-      points: pointsTotal
-    });
-  });
+const snap = handicaps.find(x => x.id === id);
+const hcap = snap ? snap.handicap : g.handicap;
+
+leaderboardData.push({
+  name: `${g.name} (${hcap})`,
+  gross: grossTotal,
+  net: netTotal,
+  points: pointsTotal
+});
+
 
   // Default sort by points
   leaderboardData.sort((a, b) => b.points - a.points);
