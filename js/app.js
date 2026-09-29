@@ -279,6 +279,14 @@ async function loadDaySetup(dayNumber) {
     return;
   }
 
+// Update header
+const title = document.getElementById("setupTitle");
+title.innerHTML = `
+  Setup Handicaps<br>
+  <small>${day.date} – ${day.courseName}</small>
+`;
+
+
   // ⭐ Convert golfer IDs into full golfer objects
   const allGolfers = JSON.parse(localStorage.getItem("golfers")) || [];
 
