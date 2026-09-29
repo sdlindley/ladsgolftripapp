@@ -738,6 +738,7 @@ function loadEditDayPage() {
 }
 
 // save edited day logic
+
 function saveEditedDay() {
   const params = new URLSearchParams(window.location.search);
   const dayId = params.get("id");
@@ -751,18 +752,47 @@ function saveEditedDay() {
   const courses = JSON.parse(localStorage.getItem("courses")) || [];
   const course = courses.find(c => c.id === courseId);
 
+  // Get selected golfers
   const selectedGolfers = [];
   document.querySelectorAll("#golfersList input:checked").forEach(cb => {
     selectedGolfers.push(cb.value);
   });
 
+  // Load existing snapshot (if any)
+  let existingSnapshot = JSON.parse(localStorage.getItem(`handicaps-day-${dayId}`));
+
+  // Only update snapshot if it exists
+  if (existingSnapshot) {
+
+    const allGolfers = JSON.parse(localStorage.getItem("golfers")) || [];
+    const newSnapshot = [];
+
+    selectedGolfers.forEach(id => {
+      const master = allGolfers.find(x => x.id === id);
+      const old = existingSnapshot.find(x => x.id === id);
+
+      newSnapshot.push({
+        id: master.id,
+        name: master.name,
+        handicap: old ? old.handicap : master.handicap
+      });
+    });
+
+    // Save updated snapshot
+    localStorage.setItem(`handicaps-day-${dayId}`, JSON.stringify(newSnapshot));
+
+    // Also store snapshot inside the day object
+    days[dayIndex].handicaps = newSnapshot;
+  }
+
+  // Update day object (always)
   days[dayIndex] = {
     id: dayId,
     date,
     courseId,
     courseName: course.name,
     golfers: selectedGolfers,
-    handicaps: days[dayIndex].handicaps // keep existing snapshot
+    handicaps: days[dayIndex].handicaps || {} // unchanged if no snapshot yet
   };
 
   localStorage.setItem("days", JSON.stringify(days));
