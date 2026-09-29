@@ -94,6 +94,9 @@ let currentDayId = null;
 async function loadDynamicScorecard(dayNumber) {
 
   currentDayId = dayNumber;
+  document.getElementById("leaderboardLink").href =
+  `day-leaderboard.html?day=${dayNumber}`;
+
 
   // ---------------------------
   // Load day from localStorage
