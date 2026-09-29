@@ -694,16 +694,19 @@ function loadDaysPage() {
 function deleteDay(dayId) {
   if (!confirm("Delete this day?")) return;
 
-  // Remove day from list
   const days = JSON.parse(localStorage.getItem("days")) || [];
   const updated = days.filter(d => d.id !== dayId);
   localStorage.setItem("days", JSON.stringify(updated));
 
-  // Remove handicap snapshot
-  localStorage.removeItem(`handicaps-day-${dayId}`);
-
-  // Remove score snapshot
-  localStorage.removeItem(`scores-day-${dayId}`);
+  // Delete related keys (wildcard)
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith(`handicaps-day-${dayId}`)) {
+      localStorage.removeItem(key);
+    }
+    if (key.startsWith(`scores-day-${dayId}`)) {
+      localStorage.removeItem(key);
+    }
+  });
 
   alert("Day deleted");
   location.reload();
