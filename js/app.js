@@ -350,7 +350,10 @@ function renderGolfers(golfers) {
       <td>${g.name}</td>
       <td>${g.handicap}</td>
       <td>
-        <button class="btn btn-sm btn-secondary" onclick="editGolfer(${index})">Edit</button>
+        <button class="btn btn-sm btn-secondary" onclick="editGolfer('${g.id}')">Edit</button>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-danger" onclick="deleteGolfer('${g.id}')">Delete</button>
       </td>
     `;
 
@@ -387,22 +390,46 @@ function addGolfer() {
 
 
 // Edit golfer
-function editGolfer(index) {
-  const golfers = JSON.parse(localStorage.getItem("golfers"));
-  const g = golfers[index];
+function editGolfer(golferId) {
+  const golfers = JSON.parse(localStorage.getItem("golfers")) || [];
+  const golfer = golfers.find(g => g.id === golferId);
 
-  const newName = prompt("Edit name:", g.name);
-  const newHandicap = prompt("Edit handicap:", g.handicap);
+  if (!golfer) {
+    alert("Golfer not found");
+    return;
+  }
+
+  const newName = prompt("Edit name:", golfer.name);
+  const newHandicap = prompt("Edit handicap:", golfer.handicap);
 
   if (newName && !isNaN(parseInt(newHandicap))) {
-    golfers[index] = {
-      name: newName.trim(),
-      handicap: parseInt(newHandicap)
-    };
 
+    // Update the golfer
+    golfer.name = newName.trim();
+    golfer.handicap = parseInt(newHandicap);
+
+    // Save back to localStorage
     localStorage.setItem("golfers", JSON.stringify(golfers));
+
+    // Re-render table
     renderGolfers(golfers);
   }
+}
+
+
+// Delete golfer
+function deleteGolfer(golferId) {
+  if (!confirm("Delete this golfer?")) return;
+
+  const golfers = JSON.parse(localStorage.getItem("golfers")) || [];
+
+  // Remove the golfer with matching ID
+  const updated = golfers.filter(g => g.id !== golferId);
+
+  localStorage.setItem("golfers", JSON.stringify(updated));
+
+  alert("Golfer deleted");
+  location.reload();
 }
 
 
@@ -526,7 +553,7 @@ function loadCourseForEditing() {
   });
 }
 
-  // Edit course
+  // Save Edit course
 
 function saveEditedCourse() {
   const params = new URLSearchParams(window.location.search);
