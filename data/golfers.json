@@ -1,5 +1,6 @@
 [
-  { "name": "Sam", "handicap": 14 },
-  { "name": "Tel", "handicap": 22 },
-  { "name": "Dave", "handicap": 10 }
+  { "id": "sam", "name": "Sam", "handicap": 14 },
+  { "id": "mark", "name": "Mark", "handicap": 22 },
+  { "id": "dave", "name": "Dave", "handicap": 10 },
+  { "id": "jim", "name": "Jim", "handicap": 18 }
 ]
