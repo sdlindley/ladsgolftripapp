@@ -82,7 +82,6 @@ function loadCoursesPage() {
 }
 
 
-
 // ---------------------------
 // NEW scorecard (single table, multi-player)
 // ---------------------------
@@ -90,8 +89,11 @@ function loadCoursesPage() {
 let activeTab = "gross";
 let currentCourse = null;
 let currentGolfers = null;
+let currentDayId = null;
 
 async function loadDynamicScorecard(dayNumber) {
+
+  currentDayId = dayNumber;
 
   // ---------------------------
   // Load day from localStorage
@@ -104,12 +106,17 @@ async function loadDynamicScorecard(dayNumber) {
     return;
   }
 
-  document.getElementById("scorecardTitle").innerText =
-    `Scorecard – Day ${day.id}`;
-
+  // ---------------------------
+  // Update header (clean version)
+  // ---------------------------
+  const title = document.getElementById("scorecardTitle");
+  title.innerHTML = `
+    Scorecard<br>
+    <small>${day.date} – ${day.courseName}</small>
+  `;
 
   // ---------------------------
-  // Load course from localStorage
+  // Load course
   // ---------------------------
   const courses = JSON.parse(localStorage.getItem("courses")) || [];
   const course = courses.find(c => c.id === day.courseId);
@@ -119,24 +126,28 @@ async function loadDynamicScorecard(dayNumber) {
     return;
   }
 
-
   // ---------------------------
-  // Load golfers for THIS day
-  // (snapshot created when the day was added)
+  // Load golfers (IDs → objects)
   // ---------------------------
-  let golfers = day.golfers;
+  const allGolfers = JSON.parse(localStorage.getItem("golfers")) || [];
 
-  // Load saved handicaps (if any)
-  const savedHandicaps =
-    JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`));
-
-  if (savedHandicaps) {
-    golfers = savedHandicaps; // override snapshot
-  }
+  const golfers = day.golfers.map(id => {
+    const g = allGolfers.find(x => x.id === id);
+    return {
+      id: g.id,
+      name: g.name,
+      handicap: g.handicap
+    };
+  });
 
   currentCourse = course;
   currentGolfers = golfers;
 
+  // ---------------------------
+  // Load saved scores (gross, net, points)
+  // ---------------------------
+  const savedScores =
+    JSON.parse(localStorage.getItem(`scores-day-${dayNumber}`)) || {};
 
   // ---------------------------
   // Build scorecard UI
@@ -182,20 +193,24 @@ async function loadDynamicScorecard(dayNumber) {
     `;
 
     golfers.forEach(g => {
+
+      const saved = savedScores[g.name]?.[h.hole] || {};
+
       table += `
         <td>
           <input type="number"
                  class="form-control gross"
                  data-player="${g.name}"
-                 data-hole="${h.hole}">
+                 data-hole="${h.hole}"
+                 value="${saved.gross ?? ''}">
 
           <span class="net d-none"
                  data-player="${g.name}"
-                 data-hole="${h.hole}"></span>
+                 data-hole="${h.hole}">${saved.net ?? ''}</span>
 
           <span class="points d-none"
                  data-player="${g.name}"
-                 data-hole="${h.hole}"></span>
+                 data-hole="${h.hole}">${saved.points ?? ''}</span>
         </td>
       `;
     });
@@ -243,7 +258,6 @@ async function loadDynamicScorecard(dayNumber) {
 
   container.innerHTML = tabs + table;
 
-
   // ---------------------------
   // Add listeners
   // ---------------------------
@@ -265,8 +279,10 @@ async function loadDynamicScorecard(dayNumber) {
     showPoints();
     setActiveTab("points");
   });
-}
 
+  // Initial calculation
+  calculateScores(course, golfers);
+}
 
 
 async function loadDaySetup(dayNumber) {
@@ -954,3 +970,36 @@ function setActiveTab(tab) {
 // ⭐ NEW: refresh totals when switching tabs  
     calculateScores(currentCourse, currentGolfers);
 }
+
+// Save scores
+
+function saveScores(dayId) {
+  const scoreInputs = document.querySelectorAll("input.gross[data-player][data-hole]");
+  const scores = {};
+
+  scoreInputs.forEach(input => {
+    const player = input.getAttribute("data-player");
+    const hole = input.getAttribute("data-hole");
+
+    const gross = parseInt(input.value);
+
+    const netCell = document.querySelector(`.net[data-player="${player}"][data-hole="${hole}"]`);
+    const pointsCell = document.querySelector(`.points[data-player="${player}"][data-hole="${hole}"]`);
+
+    const net = parseInt(netCell.innerText);
+    const points = parseInt(pointsCell.innerText);
+
+    if (!scores[player]) scores[player] = {};
+
+    scores[player][hole] = {
+      gross: isNaN(gross) ? null : gross,
+      net: isNaN(net) ? null : net,
+      points: isNaN(points) ? null : points
+    };
+  });
+
+  localStorage.setItem(`scores-day-${dayId}`, JSON.stringify(scores));
+
+  alert("Scores saved");
+}
+
