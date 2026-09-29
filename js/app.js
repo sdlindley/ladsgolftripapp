@@ -279,12 +279,24 @@ async function loadDaySetup(dayNumber) {
     return;
   }
 
+  // ⭐ Convert golfer IDs into full golfer objects
+  const allGolfers = JSON.parse(localStorage.getItem("golfers")) || [];
+
+  const snapshotGolfers = day.golfers.map(id => {
+    const g = allGolfers.find(x => x.id === id);
+    return {
+      id: g.id,
+      name: g.name,
+      handicap: g.handicap
+    };
+  });
+
   // Load saved handicaps (if any)
   let saved = JSON.parse(localStorage.getItem(`handicaps-day-${dayNumber}`));
 
-  // If none saved yet, use the snapshot from the day
+  // If none saved yet, use the snapshot
   if (!saved) {
-    saved = day.golfers;   // ⭐ THIS IS THE FIX
+    saved = snapshotGolfers;
   }
 
   const container = document.getElementById("setupList");
