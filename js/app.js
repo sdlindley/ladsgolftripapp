@@ -355,7 +355,7 @@ title.innerHTML = `
   document.getElementById("saveBtn").addEventListener("click", () => {
     const updated = saved.map(g => {
       const input = document.querySelector(`input[data-player="${g.name}"]`);
-      return { name: g.name, handicap: parseInt(input.value) };
+      return { id: g.id, name: g.name, handicap: parseInt(input.value) };
     });
 
     localStorage.setItem(`handicaps-day-${dayNumber}`, JSON.stringify(updated));
