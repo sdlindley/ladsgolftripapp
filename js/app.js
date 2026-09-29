@@ -1075,7 +1075,6 @@ leaderboardData.push({
   leaderboardData.sort((a, b) => b.points - a.points);
 
   renderLeaderboardTable(leaderboardData);
-}
 
 
   // Render Leaderboard Table click to sort headers
@@ -1083,18 +1082,20 @@ function renderLeaderboardTable(data) {
 
   const container = document.getElementById("leaderboard");
 
-  let table = `
-    <table class="table table-striped table-bordered">
-      <thead class="table-dark">
-        <tr>
-          <th data-sort="name">Golfer</th>
-          <th data-sort="gross">Gross</th>
-          <th data-sort="net">Net</th>
-          <th data-sort="points">Points</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
+
+let table = `
+  <table class="table table-striped table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th data-sort="name">Golfer</th>
+        <th data-sort="gross">Gross <span class="sort-icon">⇅</span></th>
+        <th data-sort="net">Net <span class="sort-icon">⇅</span></th>
+        <th data-sort="points">Points <span class="sort-icon">⇅</span></th>
+      </tr>
+    </thead>
+    <tbody>
+`;
+
 
   data.forEach(row => {
     table += `
@@ -1115,20 +1116,31 @@ function renderLeaderboardTable(data) {
   container.innerHTML = table;
 
   // Add sorting
-  container.querySelectorAll("th[data-sort]").forEach(th => {
-    th.style.cursor = "pointer";
-    th.addEventListener("click", () => {
-      const key = th.getAttribute("data-sort");
+container.querySelectorAll("th[data-sort]").forEach(th => {
+  th.style.cursor = "pointer";
 
-      // Sort descending except name
-      if (key === "name") {
-        data.sort((a, b) => a.name.localeCompare(b.name));
-      } else {
-        data.sort((a, b) => b[key] - a[key]);
-      }
+  th.addEventListener("click", () => {
+    const key = th.getAttribute("data-sort");
 
-      renderLeaderboardTable(data);
+    // Sort descending except name
+    if (key === "name") {
+      data.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      data.sort((a, b) => b[key] - a[key]);
+    }
+
+    // Update sort icons
+    container.querySelectorAll(".sort-icon").forEach(icon => {
+      icon.innerText = "⇅";   // reset all
     });
+
+    const icon = th.querySelector(".sort-icon");
+    if (icon) {
+      icon.innerText = key === "name" ? "⇅" : "↓";  // show active sort
+    }
+
+    renderLeaderboardTable(data);
   });
+});
 }
 
